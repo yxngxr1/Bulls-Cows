@@ -3,7 +3,7 @@ package com.bulls_cows.game.entities;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "GameStatistics")
+@Table(name = "t_game_stat")
 public class GameStatistics
 {
     @Id
@@ -13,7 +13,7 @@ public class GameStatistics
     private long completionTime;
 
     @ManyToOne
-    private Player player;
+    private User user;
 
     public int getAttempts() {
         return attempts;
