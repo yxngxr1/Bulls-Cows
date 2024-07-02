@@ -1,55 +1,187 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Быки и коровы</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Быки & Коровы</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            <!--- height: 100vh; ---->
+            margin: 0;
+            background-color: #d3d3d3;
+        }
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header button {
+            padding: 10px;
+            margin: 10px;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .input-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .input-grid {
+            display: flex;
+        }
+        .input-grid input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            margin: 2px;
+            font-size: 1.5em;
+        }
+        .radio-buttons, .timer-attempts {
+            display: flex;
+            flex-direction: column;
+            margin: 0 20px;
+        }
+        .result-header {
+            display: flex;
+            margin-top: 10px;
+        }
+        .result-header div {
+            width: 40px;
+            text-align: center;
+            font-size: 1.2em;
+            margin: 2px;
+        }
+        .result-row {
+            display: none;
+            align-items: center;
+            margin: 2px 0;
+        }
+        .result-grid, .bulls-cows {
+            display: flex;
+        }
+        .result-grid div, .bulls-cows div {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2px;
+            font-size: 1.2em;
+        }
+        .timer-inputs {
+            display: flex;
+            align-items: center;
+        }
+        .timer-inputs input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            margin: 2px;
+            font-size: 1.5em;
+        }
+        .bulls-name {
+            display: flex;
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-3">
-    <div class="main-container">
-        <div class="game-container">
-            <h1>Быки и коровы</h1>
-            <div th:if="${username != null}" class="mt-3">
-                <p>Вы вошли за: <span th:text="${username}"></span>!</p>
-                <a href="/" class="btn btn-info">На главную</a>
-            </div>
-            <div class="game-info">
-                <div class="timer">Время: <span id="time">0</span> сек</div>
-                <div class="attempts">Попытки: <span id="attempts">0</span></div>
-            </div>
-            <div class="input-container">
-                <div class="guess-fields">
-                    <input type="text" maxlength="1" class="guess-input" id="digit1">
-                    <input type="text" maxlength="1" class="guess-input" id="digit2">
-                    <input type="text" maxlength="1" class="guess-input" id="digit3">
-                    <input type="text" maxlength="1" class="guess-input" id="digit4">
-                </div>
-                <button class="guess-button" onclick="makeGuess()">Угадать</button>
-                <div class="result-fields">
-                    <div class="result-column">
-                        <div class="result-label">Б</div>
-                        <input type="text" class="result-input" id="bulls" readonly>
-                    </div>
-                    <div class="result-column">
-                        <div class="result-label">К</div>
-                        <input type="text" class="result-input" id="cows" readonly>
-                    </div>
-                </div>
-            </div>
-            <div class="results" id="results"></div>
+<div class="header">
+    <button onclick="location.href='/'">⬅ Назад</button>
+    <button onclick="location.href='/statistics'">Статистика</button>
+</div>
+<div class="game-container">
+    <h1>Быки & Коровы</h1>
+    <div class="input-section">
+        <div class="radio-buttons">
+            <label><input type="radio" name="gameMode" value="unlimited" checked> без ограничений</label>
+            <label><input type="radio" name="gameMode" value="attempts"> Ограничение по попыткам</label>
+            <label><input type="radio" name="gameMode" value="time"> Ограничение по времени</label>
         </div>
-        <div class="description">
-            <p><b>Б</b> - число цифр, которые угаданы и стоят на правильных местах.</p>
-            <p><b>К</b> - число цифр, которые угаданы, но стоят не на своих местах.</p>
+        <div class="input-grid">
+            <input type="text" maxlength="1" onkeypress="return isNumber(event)">
+            <input type="text" maxlength="1" onkeypress="return isNumber(event)">
+            <input type="text" maxlength="1" onkeypress="return isNumber(event)">
+            <input type="text" maxlength="1" onkeypress="return isNumber(event)" onkeydown="checkEnter(event)">
+        </div>
+        <div class="timer-attempts">
+            <div class="timer-inputs">
+                <span>Таймер: </span>
+                <input type="text" id="minutes" maxlength="2" value="00" onkeypress="return isNumber(event)" readonly>
+                <span>:</span>
+                <input type="text" id="seconds" maxlength="2" value="00" onkeypress="return isNumber(event)" readonly>
+            </div>
+            <div>Кол-во попыток: <span id="attempts">0</span></div>
         </div>
     </div>
+    <div class="result-header">
+        <div class="result-placeholder"></div>
+        <div class="result-placeholder"></div>
+        <div class="result-placeholder"></div>
+        <div class="result-placeholder"></div>
+    </div>
+    <div id="resultContainer"></div>
 </div>
-<script src="/js/script.js"></script>
-<!-- Bootstrap JS and dependencies -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    function checkEnter(event) {
+        if (event.key === 'Enter') {
+            let inputs = document.querySelectorAll('.input-grid input');
+            let inputValues = Array.from(inputs).map(input => input.value).join('');
+            if (inputValues.length === 4) {
+                addResultRow(inputValues);
+                inputs.forEach(input => input.value = '');
+                document.getElementById('attempts').innerText = parseInt(document.getElementById('attempts').innerText) + 1;
+            }
+        }
+    }
+
+    function addResultRow(value) {
+        let resultContainer = document.getElementById('resultContainer');
+        let resultRow = document.createElement('div');
+        resultRow.className = 'result-row';
+
+        let resultGrid = document.createElement('div');
+        resultGrid.className = 'result-grid';
+        value.split('').forEach(char => {
+            let cell = document.createElement('div');
+            cell.innerText = char;
+            resultGrid.appendChild(cell);
+        });
+
+        let bullsCows = document.createElement('div');
+        bullsCows.className = 'bulls-cows';
+        let bulls = document.createElement('div');
+        bulls.innerText = '0'; // Здесь можно вставить логику для вычисления количества быков
+        let cows = document.createElement('div');
+        cows.innerText = '0'; // Здесь можно вставить логику для вычисления количества коров
+        bullsCows.appendChild(bulls);
+        bullsCows.appendChild(cows);
+
+        resultRow.appendChild(resultGrid);
+        resultRow.appendChild(bullsCows);
+        resultContainer.appendChild(resultRow);
+
+        resultRow.style.display = 'flex';
+    }
+</script>
 </body>
+</html>
