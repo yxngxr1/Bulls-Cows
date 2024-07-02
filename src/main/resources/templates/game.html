@@ -3,21 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Быки и коровы</title>
+    <link rel="stylesheet" href="css/styles.css">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container mt-3">
-    <h2>Быки и коровы</h2>
-    <div th:if="${username != null}" class="mt-3">
-        <p>Вы вошли за: <span th:text="${username}"></span>!</p>
-        <a href="/" class="btn btn-info">На главную</a>
+    <div class="main-container">
+        <div class="game-container">
+            <h1>Быки и коровы</h1>
+            <div th:if="${username != null}" class="mt-3">
+                <p>Вы вошли за: <span th:text="${username}"></span>!</p>
+                <a href="/" class="btn btn-info">На главную</a>
+            </div>
+            <div class="game-info">
+                <div class="timer">Время: <span id="time">0</span> сек</div>
+                <div class="attempts">Попытки: <span id="attempts">0</span></div>
+            </div>
+            <div class="input-container">
+                <div class="guess-fields">
+                    <input type="text" maxlength="1" class="guess-input" id="digit1">
+                    <input type="text" maxlength="1" class="guess-input" id="digit2">
+                    <input type="text" maxlength="1" class="guess-input" id="digit3">
+                    <input type="text" maxlength="1" class="guess-input" id="digit4">
+                </div>
+                <button class="guess-button" onclick="makeGuess()">Угадать</button>
+                <div class="result-fields">
+                    <div class="result-column">
+                        <div class="result-label">Б</div>
+                        <input type="text" class="result-input" id="bulls" readonly>
+                    </div>
+                    <div class="result-column">
+                        <div class="result-label">К</div>
+                        <input type="text" class="result-input" id="cows" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="results" id="results"></div>
+        </div>
+        <div class="description">
+            <p><b>Б</b> - число цифр, которые угаданы и стоят на правильных местах.</p>
+            <p><b>К</b> - число цифр, которые угаданы, но стоят не на своих местах.</p>
+        </div>
     </div>
 </div>
-
+<script src="/js/script.js"></script>
 <!-- Bootstrap JS and dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
-</html>

@@ -39,8 +39,7 @@ class AuthController {
         UserDetails userDetails = userService.loadUserByUsername(username);
 
         if (userDetails != null && passwordEncoder.matches(password, userDetails.getPassword())) {
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             HttpSession session = request.getSession();
