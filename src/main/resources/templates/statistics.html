@@ -1,10 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="/css/statistic.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-<p>Статистика</p>
+    <div class="header">
+        <button onclick="location.href='/'">⬅ Назад</button>
+    </div>
+    <p>Статистика пользователя: <span th:text="${username}"></span></p>
+    <div class="table-container">
+        <table id="myTable" class="table">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Тип игры</th>
+                <th scope="col">Кол-во попыток</th>
+                <th scope="col">Время</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="gameStat : ${gameStats}">
+                <td th:text="${gameStat.id}"></td>
+                <td th:text="'Макс. попыток: ' + ${gameStat.maxAttempts} + ', Макс. время: ' + ${gameStat.maxCompletionTime}"></td>
+                <td th:text="${gameStat.attempts}"></td>
+                <td th:text="${gameStat.completionTime}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+<!--    <script src="/js/statistic.js"></script>-->
 </body>
 </html>

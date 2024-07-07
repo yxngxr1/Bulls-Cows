@@ -1,6 +1,10 @@
 package com.bulls_cows.game.controllers;
 
 
+import com.bulls_cows.game.entities.GameStatistics;
+import com.bulls_cows.game.entities.User;
+import com.bulls_cows.game.repository.UserRepository;
+import com.bulls_cows.game.service.GameStatService;
 import com.bulls_cows.game.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +14,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+
 @Controller
 public class HomeController {
     @Autowired
-    UserService service;
+    private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private GameStatService gameStatService;
+
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
         UserDetails currentUser = (UserDetails) session.getAttribute("user");
@@ -42,6 +53,12 @@ public class HomeController {
         System.out.println("User found: " + currentUser);  // Логирование
         if (currentUser != null) {
             model.addAttribute("username", currentUser.getUsername());
+
+            User user = userRepository.findByUsername(currentUser.getUsername());
+            System.out.println(user);
+            List<GameStatistics> gameStats = gameStatService.findAllByUserId(user.getId());
+            System.out.println(gameStats);
+            model.addAttribute("gameStats", gameStats);
         } else {
             return "redirect:/";
         }
