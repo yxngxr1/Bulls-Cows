@@ -17,8 +17,8 @@
 .table{
     justify-self: center;
     align-self: center;
-
 }
+
 .table-container{
     display: grid;
 }

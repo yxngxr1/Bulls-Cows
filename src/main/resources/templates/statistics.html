@@ -21,8 +21,16 @@
                 <th scope="col">Время</th>
             </tr>
             </thead>
+            <tbody>
+            <tr th:each="gameStat : ${gameStats}">
+                <td th:text="${gameStat.id}"></td>
+                <td th:text="'Макс. попыток: ' + ${gameStat.maxAttempts} + ', Макс. время: ' + ${gameStat.maxCompletionTime}"></td>
+                <td th:text="${gameStat.attempts}"></td>
+                <td th:text="${gameStat.completionTime}"></td>
+            </tr>
+            </tbody>
         </table>
     </div>
-    <script src="/js/statistic.js"></script>
+<!--    <script src="/js/statistic.js"></script>-->
 </body>
 </html>
