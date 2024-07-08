@@ -71,6 +71,8 @@ public class GameStatistics
                 "id=" + id +
                 ", attempts=" + attempts +
                 ", completionTime=" + completionTime +
+                ", maxAttempts=" + maxAttempts +
+                ", maxCompletionTime=" + maxCompletionTime +
                 ", user=" + (user != null ? user.getUsername() : "null") +
                 '}';
     }

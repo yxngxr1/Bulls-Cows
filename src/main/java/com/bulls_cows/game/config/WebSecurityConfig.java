@@ -24,7 +24,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/login", "/register", "/game", "/statistics", "/h2-console/**", "/logout", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/game", "/statistics", "/h2-console/**", "/logout", "/css/**", "/js/**", "/api/game-stat").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf((csrf) -> csrf

@@ -1,7 +1,11 @@
-let secretNumber = generateSecretNumber();
+// нет проверки на кол-во попыток
+
+let secretNumber;
 let attempts = 0;
-let maxTime = 300; // 5 минут
-let startTime = Date.now();
+let maxAttempts;
+let maxCompletionTime;
+let timerInterval;
+let startTime;
 
 function generateSecretNumber() {
     let digits = [];
@@ -11,7 +15,31 @@ function generateSecretNumber() {
             digits.push(digit);
         }
     }
+    console.log(digits)
     return digits.join('');
+}
+
+function startGame() {
+    secretNumber = generateSecretNumber();
+    attempts = 0;
+    maxCompletionTime = parseInt(document.getElementById('maxCompletionTime').value);
+    maxAttempts = parseInt(document.getElementById('maxAttempts').value)
+    document.getElementById('attempts').textContent = attempts;
+    document.getElementById('time').textContent = 0;
+    document.getElementById('results').innerHTML = '';
+
+    startTime = Date.now();
+    timerInterval = setInterval(() => {
+        let elapsed = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById('time').textContent = elapsed;
+
+        if (elapsed >= maxCompletionTime) {
+            alert(`Время вышло! Загаданное число было ${secretNumber}`);
+            clearInterval(timerInterval);
+        }
+    }, 1000);
+
+    $('#startGameModal').modal('hide');
 }
 
 function makeGuess() {
@@ -36,6 +64,7 @@ function makeGuess() {
     if (bulls === 4) {
         alert(`Вы угадали число ${secretNumber} за ${attempts} попыток!`);
         clearInterval(timerInterval);
+        saveGameStatistics();
     }
 }
 
@@ -58,14 +87,39 @@ function displayResult(guess, bulls, cows) {
     results.appendChild(result);
 }
 
-let timerInterval = setInterval(() => {
-    let elapsed = Math.floor((Date.now() - startTime) / 1000);
-    document.getElementById('time').textContent = elapsed;
+function saveGameStatistics() {
+    const apiUrl = '/api/game-stat';
 
-    if (elapsed >= maxTime) {
-        alert(`Время вышло! Загаданное число было ${secretNumber}`);
-        clearInterval(timerInterval);
-    }
-}, 1000);
+    const gameStatistics = {
+        attempts: attempts,
+        completionTime: Math.floor((Date.now() - startTime) / 1000),
+        maxAttempts: maxAttempts,
+        maxCompletionTime: maxCompletionTime
+    };
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify(gameStatistics)
+    };
 
 
+    fetch(apiUrl, requestOptions)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            console.log(response)
+            return response.json();
+        })
+        .then((data) => console.log(data))
+        .catch(error => {
+            console.error('Error saving game statistics:', error);
+        });
+}
