@@ -7,30 +7,36 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="header">
-        <button onclick="location.href='/'">⬅ Назад</button>
+<div class="container mt-4">
+    <div class="header mb-3">
+        <button class="btn btn-primary" onclick="location.href='/'">На главную</button>
     </div>
-    <p>Статистика пользователя: <span th:text="${username}"></span></p>
-    <div class="table-container">
-        <table id="myTable" class="table">
-            <thead>
-            <tr>
-                <th scope="col">Id</th>
-                <th scope="col">Тип игры</th>
-                <th scope="col">Кол-во попыток</th>
-                <th scope="col">Время</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="gameStat : ${gameStats}">
-                <td th:text="${gameStat.id}"></td>
-                <td th:text="'Макс. попыток: ' + ${gameStat.maxAttempts} + ', Макс. время: ' + ${gameStat.maxCompletionTime}"></td>
-                <td th:text="${gameStat.attempts}"></td>
-                <td th:text="${gameStat.completionTime}"></td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="card">
+        <div class="card-body">
+            <p>Статистика пользователя: <span th:text="${username}"></span></p>
+            <div class="table-responsive">
+                <table id="myTable" class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Тип игры</th>
+                        <th scope="col">Кол-во попыток</th>
+                        <th scope="col">Время</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="gameStat : ${gameStats}">
+                        <td th:text="${gameStat.id}"></td>
+                        <td th:text="'Макс. попыток: ' + ${gameStat.maxAttempts} + ', Макс. время: ' + ${gameStat.maxCompletionTime}"></td>
+                        <td th:text="${gameStat.attempts}"></td>
+                        <td th:text="${gameStat.completionTime}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-<!--    <script src="/js/statistic.js"></script>-->
+</div>
+<!-- <script src="/js/statistic.js"></script> -->
 </body>
 </html>
