@@ -27,6 +27,7 @@ public class GameStatController {
             System.out.println(gameStatistics);
             gameStatService.saveGameStat(currentUser.getUsername(), gameStatistics);
             ApiMessageResponse response = new ApiMessageResponse("Game stat saved successfully");
+
             return ResponseEntity.ok(response);
         } else {
             ApiMessageResponse response = new ApiMessageResponse("User not authenticated");

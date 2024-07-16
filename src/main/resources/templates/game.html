@@ -25,10 +25,10 @@
             </div>
             <div class="input-container">
                 <div class="guess-fields">
-                    <input type="text" maxlength="1" class="guess-input" id="digit1">
-                    <input type="text" maxlength="1" class="guess-input" id="digit2">
-                    <input type="text" maxlength="1" class="guess-input" id="digit3">
-                    <input type="text" maxlength="1" class="guess-input" id="digit4">
+                    <input type="text" maxlength="1" class="guess-input" id="digit1" onkeypress="return isNumber(event)">
+                    <input type="text" maxlength="1" class="guess-input" id="digit2" onkeypress="return isNumber(event)">
+                    <input type="text" maxlength="1" class="guess-input" id="digit3" onkeypress="return isNumber(event)">
+                    <input type="text" maxlength="1" class="guess-input" id="digit4" onkeypress="return isNumber(event)">
                 </div>
                 <button class="guess-button" onclick="makeGuess()">Угадать</button>
                 <div class="result-fields">
@@ -66,13 +66,13 @@
                 <form>
                     <div class="form-group">
                         <label for="maxAttempts">Максимальное количество попыток</label>
-                        <input type="range" class="form-control-range" id="maxAttempts" min="1" max="100" value="10">
+                        <input type="range" class="form-control-range" id="maxAttempts" min="1" max="101" value="10">
                         <span id="maxAttemptsValue">10</span>
                     </div>
                     <div class="form-group">
                         <label for="maxCompletionTime">Максимальное время (секунды)</label>
-                        <input type="range" class="form-control-range" id="maxCompletionTime" min="30" max="600" value="300">
-                        <span id="maxCompletionTimeValue">300</span>
+                        <input type="range" class="form-control-range" id="maxCompletionTime" min="10" max="121" value="30">
+                        <span id="maxCompletionTimeValue">30</span>
                     </div>
                 </form>
             </div>
@@ -90,13 +90,60 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#maxAttempts').on('input', function() {
-            $('#maxAttemptsValue').text($(this).val());
+        $('#maxAttempts').on('input', function()
+        {
+            if ($(this).val() == $(this).attr('max'))
+            {
+                $('#maxAttemptsValue').text("Без ограничений");
+            }
+            else
+            {
+                $('#maxAttemptsValue').text($(this).val());
+            }
+
         });
-        $('#maxTime').on('input', function() {
-            $('#maxTimeValue').text($(this).val());
+
+        $('#maxCompletionTime').on('input', function()
+        {
+            if ($(this).val() == $(this).attr('max'))
+            {
+                $('#maxCompletionTimeValue').text("Без ограничений");
+            }
+            else
+            {
+                $('#maxCompletionTimeValue').text($(this).val());
+            }
         });
     });
+
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+    $('input').keyup(function(e)
+    {
+        if (e.keyCode == 8)
+        {
+            $(this).val('');
+            if ($(this).prev('input') != null)
+            {
+                $(this).prev('input').focus();
+            }
+        }
+        if($(this).val().match(/^\d{1}$/)){
+            $(this).next('input').focus();
+        }
+        else
+        {
+            $(this).val('');
+        }
+    });
+
 </script>
 </body>
 </html>

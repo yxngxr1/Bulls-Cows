@@ -10,9 +10,10 @@ public class GameStatistics
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Integer attempts;
-    private Long completionTime;
+    private Integer completionTime;
     private Integer maxAttempts;
-    private Long maxCompletionTime;
+    private Integer maxCompletionTime;
+    private Boolean isWin;
 
     @ManyToOne
     private User user;
@@ -33,11 +34,11 @@ public class GameStatistics
         this.attempts = attempts;
     }
 
-    public Long getCompletionTime() {
+    public Integer getCompletionTime() {
         return completionTime;
     }
 
-    public void setCompletionTime(long completionTime) {
+    public void setCompletionTime(int completionTime) {
         this.completionTime = completionTime;
     }
 
@@ -49,12 +50,20 @@ public class GameStatistics
         this.maxAttempts = maxAttempts;
     }
 
-    public Long getMaxCompletionTime() {
+    public Integer getMaxCompletionTime() {
         return maxCompletionTime;
     }
 
-    public void setMaxCompletionTime(Long maxCompletionTime) {
+    public void setMaxCompletionTime(int maxCompletionTime) {
         this.maxCompletionTime = maxCompletionTime;
+    }
+
+    public Boolean getIsWin() {
+        return isWin;
+    }
+
+    public void setIsWin(Boolean win) {
+        isWin = win;
     }
 
     public User getUser() {
@@ -73,6 +82,7 @@ public class GameStatistics
                 ", completionTime=" + completionTime +
                 ", maxAttempts=" + maxAttempts +
                 ", maxCompletionTime=" + maxCompletionTime +
+                ", isWin=" + isWin +
                 ", user=" + (user != null ? user.getUsername() : "null") +
                 '}';
     }

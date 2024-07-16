@@ -36,6 +36,7 @@ public class GameStatService
             gameStatistics1.setCompletionTime(gameStatistics.getCompletionTime());
             gameStatistics1.setMaxAttempts(gameStatistics.getMaxAttempts());
             gameStatistics1.setMaxCompletionTime(gameStatistics.getMaxCompletionTime());
+            gameStatistics1.setIsWin(gameStatistics.getIsWin());
             gameStatistics1.setUser(user);
 
             gameStatRepository.save(gameStatistics1);

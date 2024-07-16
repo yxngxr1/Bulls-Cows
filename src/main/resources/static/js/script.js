@@ -6,6 +6,8 @@ let maxAttempts;
 let maxCompletionTime;
 let timerInterval;
 let startTime;
+let isWin;
+let gameIsRun;
 
 function generateSecretNumber() {
     let digits = [];
@@ -19,7 +21,14 @@ function generateSecretNumber() {
     return digits.join('');
 }
 
-function startGame() {
+function startGame()
+{
+    document.getElementById('digit1').value  = '';
+    document.getElementById('digit2').value  = '';
+    document.getElementById('digit3').value  = '';
+    document.getElementById('digit4').value  = '';
+    document.getElementById('bulls').value  = '';
+    document.getElementById('cows').value  = '';
     secretNumber = generateSecretNumber();
     attempts = 0;
     maxCompletionTime = parseInt(document.getElementById('maxCompletionTime').value);
@@ -27,15 +36,19 @@ function startGame() {
     document.getElementById('attempts').textContent = attempts;
     document.getElementById('time').textContent = 0;
     document.getElementById('results').innerHTML = '';
+    gameIsRun = true;
+    isWin = 0;
 
     startTime = Date.now();
     timerInterval = setInterval(() => {
         let elapsed = Math.floor((Date.now() - startTime) / 1000);
         document.getElementById('time').textContent = elapsed;
 
-        if (elapsed >= maxCompletionTime) {
+        if (maxCompletionTime != 121 && elapsed >= maxCompletionTime) {
+            saveGameStatistics();
+            stopGame();
             alert(`Время вышло! Загаданное число было ${secretNumber}`);
-            clearInterval(timerInterval);
+            return;
         }
     }, 1000);
 
@@ -43,6 +56,11 @@ function startGame() {
 }
 
 function makeGuess() {
+    if(!gameIsRun)
+    {
+        alert(`Для начала игры нажмите кнопку "Начать"`);
+        return;
+    }
     let guess = '';
     for (let i = 1; i <= 4; i++) {
         guess += document.getElementById(`digit${i}`).value;
@@ -61,11 +79,27 @@ function makeGuess() {
     document.getElementById('cows').value = cows;
     displayResult(guess, bulls, cows);
 
-    if (bulls === 4) {
-        alert(`Вы угадали число ${secretNumber} за ${attempts} попыток!`);
-        clearInterval(timerInterval);
+
+    if (bulls === 4)
+    {
+        isWin = 1;
         saveGameStatistics();
+        stopGame();
+        alert(`Вы угадали число ${secretNumber} за ${attempts} попыток!`);
+        return;
     }
+    if(maxAttempts != 101 && attempts >= maxAttempts)
+    {
+        saveGameStatistics();
+        stopGame();
+        alert(`Превышено количество попыток! Загаданным числом было ${secretNumber}`);
+        return;
+    }
+    document.getElementById('digit1').value  = '';
+    document.getElementById('digit2').value  = '';
+    document.getElementById('digit3').value  = '';
+    document.getElementById('digit4').value  = '';
+    document.getElementById('digit1').focus();
 }
 
 function getBullsAndCows(guess, secret) {
@@ -87,12 +121,20 @@ function displayResult(guess, bulls, cows) {
     results.appendChild(result);
 }
 
-function saveGameStatistics() {
+function saveGameStatistics()
+{
+    if(!gameIsRun)
+    {
+        alert(`Игра уже окончена, начните заново!`);
+        return;
+    }
+
     const apiUrl = '/api/game-stat';
 
     const gameStatistics = {
         attempts: attempts,
         completionTime: Math.floor((Date.now() - startTime) / 1000),
+        isWin: isWin,
         maxAttempts: maxAttempts,
         maxCompletionTime: maxCompletionTime
     };
@@ -122,4 +164,10 @@ function saveGameStatistics() {
         .catch(error => {
             console.error('Error saving game statistics:', error);
         });
+}
+
+function stopGame()
+{
+    clearInterval(timerInterval);
+    gameIsRun = false;
 }
