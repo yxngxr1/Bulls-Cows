@@ -7,6 +7,7 @@ import com.bulls_cows.game.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -23,7 +24,8 @@ public class GameStatService
         this.gameStatRepository = gameStatRepository;
     }
 
-    public List<GameStatistics> findAllByUserId(Long userId) {
+    public List<GameStatistics> findAllByUserId(Long userId)
+    {
         return gameStatRepository.findAllByUserId(userId);
     }
 

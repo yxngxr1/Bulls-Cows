@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Controller
@@ -29,8 +30,19 @@ public class HomeController {
     public String index(HttpSession session, Model model) {
         UserDetails currentUser = (UserDetails) session.getAttribute("user");
         if (currentUser != null) {
-            model.addAttribute("username", currentUser.getUsername());
-            model.addAttribute("password", currentUser.getPassword());
+            User user = userRepository.findByUsername(currentUser.getUsername());
+            model.addAttribute("username", user.getUsername());
+            List<GameStatistics> gameStatistics = gameStatService.findAllByUserId(user.getId());
+            model.addAttribute("gamesCount", gameStatistics.size());
+            int countOfWins = 0;
+            for(GameStatistics statistics: gameStatistics)
+            {
+                if(statistics.getIsWin())
+                {
+                    countOfWins++;
+                }
+            }
+            model.addAttribute("winRate", String.format("%.1f", (((float) countOfWins / gameStatistics.size()) * 100)));
         }
         return "index";
     }

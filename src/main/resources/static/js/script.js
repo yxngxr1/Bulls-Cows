@@ -1,53 +1,48 @@
-// нет проверки на кол-во попыток
-
-let secretNumber;
-let attempts = 0;
-let maxAttempts;
-let maxCompletionTime;
-let timerInterval;
+let gameIsRun = false;
 let startTime;
-let isWin;
-let gameIsRun;
+let timerInterval;
+let secretNumber;
+async function startGame() {
+    const maxCompletionTime = parseInt(document.getElementById('maxCompletionTime').value);
+    const maxAttempts = parseInt(document.getElementById('maxAttempts').value);
 
-function generateSecretNumber() {
-    let digits = [];
-    while (digits.length < 4) {
-        let digit = Math.floor(Math.random() * 10);
-        if (!digits.includes(digit)) {
-            digits.push(digit);
-        }
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    const response = await fetch('/api/start-game', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ maxCompletionTime, maxAttempts })
+    });
+    if (!response.ok)
+    {
+        throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    console.log(digits)
-    return digits.join('');
-}
+    const data = await response.json();
+    console.log(data);
 
-function startGame()
-{
-    document.getElementById('digit1').value  = '';
-    document.getElementById('digit2').value  = '';
-    document.getElementById('digit3').value  = '';
-    document.getElementById('digit4').value  = '';
-    document.getElementById('bulls').value  = '';
-    document.getElementById('cows').value  = '';
-    secretNumber = generateSecretNumber();
-    attempts = 0;
-    maxCompletionTime = parseInt(document.getElementById('maxCompletionTime').value);
-    maxAttempts = parseInt(document.getElementById('maxAttempts').value)
-    document.getElementById('attempts').textContent = attempts;
+    document.getElementById('digit1').value = '';
+    document.getElementById('digit2').value = '';
+    document.getElementById('digit3').value = '';
+    document.getElementById('digit4').value = '';
+    document.getElementById('bulls').value = '';
+    document.getElementById('cows').value = '';
+    document.getElementById('attempts').textContent = 0;
     document.getElementById('time').textContent = 0;
     document.getElementById('results').innerHTML = '';
     gameIsRun = true;
-    isWin = 0;
-
     startTime = Date.now();
+
     timerInterval = setInterval(() => {
         let elapsed = Math.floor((Date.now() - startTime) / 1000);
         document.getElementById('time').textContent = elapsed;
 
+
         if (maxCompletionTime != 121 && elapsed >= maxCompletionTime) {
-            saveGameStatistics();
             stopGame();
-            alert(`Время вышло! Загаданное число было ${secretNumber}`);
+            alert(`Время вышло загаданным числом было ${secretNumber}!`);
             return;
         }
     }, 1000);
@@ -55,12 +50,12 @@ function startGame()
     $('#startGameModal').modal('hide');
 }
 
-function makeGuess() {
-    if(!gameIsRun)
-    {
+async function makeGuess() {
+    if (!gameIsRun) {
         alert(`Для начала игры нажмите кнопку "Начать"`);
         return;
     }
+
     let guess = '';
     for (let i = 1; i <= 4; i++) {
         guess += document.getElementById(`digit${i}`).value;
@@ -71,47 +66,45 @@ function makeGuess() {
         return;
     }
 
-    attempts++;
-    document.getElementById('attempts').textContent = attempts;
-
-    let { bulls, cows } = getBullsAndCows(guess, secretNumber);
-    document.getElementById('bulls').value = bulls;
-    document.getElementById('cows').value = cows;
-    displayResult(guess, bulls, cows);
-
-
-    if (bulls === 4)
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+    const response = await fetch('/api/make-guess', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            [csrfHeader]: csrfToken
+        },
+        body: JSON.stringify({ guess })
+    });
+    const data = await response.json();
+//    console.log(data);
+    if (!response.ok)
     {
-        isWin = 1;
-        saveGameStatistics();
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    document.getElementById('bulls').value = data.bulls;
+    document.getElementById('cows').value = data.cows;
+    document.getElementById('attempts').textContent = data.attempts;
+    secretNumber = data.secretNumber;
+    displayResult(guess, data.bulls, data.cows);
+
+    if (data.isWin) {
         stopGame();
-        alert(`Вы угадали число ${secretNumber} за ${attempts} попыток!`);
+        alert(`Вы угадали число за ${data.attempts} попыток!`);
         return;
     }
-    if(maxAttempts != 101 && attempts >= maxAttempts)
-    {
-        saveGameStatistics();
+    if (data.attempts > data.maxAttempts) {
         stopGame();
-        alert(`Превышено количество попыток! Загаданным числом было ${secretNumber}`);
+        alert(`Превышено количество попыток!`);
         return;
     }
-    document.getElementById('digit1').value  = '';
-    document.getElementById('digit2').value  = '';
-    document.getElementById('digit3').value  = '';
-    document.getElementById('digit4').value  = '';
+
+    document.getElementById('digit1').value = '';
+    document.getElementById('digit2').value = '';
+    document.getElementById('digit3').value = '';
+    document.getElementById('digit4').value = '';
     document.getElementById('digit1').focus();
-}
-
-function getBullsAndCows(guess, secret) {
-    let bulls = 0, cows = 0;
-    for (let i = 0; i < 4; i++) {
-        if (guess[i] === secret[i]) {
-            bulls++;
-        } else if (secret.includes(guess[i])) {
-            cows++;
-        }
-    }
-    return { bulls, cows };
 }
 
 function displayResult(guess, bulls, cows) {
@@ -121,53 +114,7 @@ function displayResult(guess, bulls, cows) {
     results.appendChild(result);
 }
 
-function saveGameStatistics()
-{
-    if(!gameIsRun)
-    {
-        alert(`Игра уже окончена, начните заново!`);
-        return;
-    }
-
-    const apiUrl = '/api/game-stat';
-
-    const gameStatistics = {
-        attempts: attempts,
-        completionTime: Math.floor((Date.now() - startTime) / 1000),
-        isWin: isWin,
-        maxAttempts: maxAttempts,
-        maxCompletionTime: maxCompletionTime
-    };
-
-    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            [csrfHeader]: csrfToken
-        },
-        body: JSON.stringify(gameStatistics)
-    };
-
-
-    fetch(apiUrl, requestOptions)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            console.log(response)
-            return response.json();
-        })
-        .then((data) => console.log(data))
-        .catch(error => {
-            console.error('Error saving game statistics:', error);
-        });
-}
-
-function stopGame()
-{
+function stopGame() {
     clearInterval(timerInterval);
     gameIsRun = false;
 }

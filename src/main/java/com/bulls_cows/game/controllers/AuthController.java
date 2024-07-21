@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
@@ -36,18 +37,28 @@ class AuthController {
 
     @PostMapping("/login")
     public String loginUser(@RequestParam String username, @RequestParam String password, HttpServletRequest request, Model model) {
-        UserDetails userDetails = userService.loadUserByUsername(username);
+        UserDetails userDetails = null;
+        try
+        {
+            userDetails = userService.loadUserByUsername(username);
+            if (passwordEncoder.matches(password, userDetails.getPassword())) {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        if (userDetails != null && passwordEncoder.matches(password, userDetails.getPassword())) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            HttpSession session = request.getSession();
-            session.setAttribute("user", userDetails);
-            return "redirect:/";
-        } else {
-            model.addAttribute("error", "Invalid username or password.");
-            return "login";
+                HttpSession session = request.getSession();
+                session.setAttribute("user", userDetails);
+                return "redirect:/";
+            }
+            else
+            {
+                model.addAttribute("error", "Invalid password.");
+                return "redirect:/login?error";
+            }
+        }
+        catch (UsernameNotFoundException e)
+        {
+            model.addAttribute("error", "User not found.");
+            return "redirect:/login?error";
         }
     }
 
@@ -57,7 +68,7 @@ class AuthController {
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
-        return "redirect:/";
+        return "redirect:/login?logout";
     }
 
     @GetMapping("/register")
@@ -67,9 +78,10 @@ class AuthController {
 
     @PostMapping("/register")
     public String registerPlayer(User user) {
-        if (userService.saveUser(user)) {
-            return "redirect:/login";  // Перенаправление на страницу входа после успешной регистрации
+        if (userService.saveUser(user))
+        {
+            return "redirect:/login";
         }
-        return "register";
+        return "redirect:/register?error";
     }
 }

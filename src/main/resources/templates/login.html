@@ -11,7 +11,7 @@
 <div class="container mt-5">
     <h1>Please Log In</h1>
     <div th:if="${param.error}" class="alert alert-danger">
-        Invalid username and password.
+        Invalid username or password.
     </div>
     <div th:if="${param.logout}" class="alert alert-success">
         You have been logged out.
